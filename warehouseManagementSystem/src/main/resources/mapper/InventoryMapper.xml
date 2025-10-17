@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.design.warehouseManagementSystem.mapper.InventoryMapper">
+
+    <resultMap type="com.design.warehouseManagementSystem.pojo.Inventory" id="InventoryMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="productNo" column="product_no" jdbcType="VARCHAR"/>
+        <result property="productName" column="product_name" jdbcType="VARCHAR"/>
+        <result property="images" column="images" jdbcType="VARCHAR"/>
+        <result property="total" column="total" jdbcType="INTEGER"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="createdBy" column="created_by" jdbcType="VARCHAR"/>
+        <result property="managerId" column="manager_id" jdbcType="INTEGER"/>
+        <result property="storageRoom" column="storage_room" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="InventoryMap">
+        select
+          id, product_no, product_name, images, total, created_at, created_by, manager_id, storage_room
+        from inventory
+        where id = #{id}
+    </select>
+
+
+
+    <!--新增所有列-->
+    <insert id="increased" keyProperty="id" useGeneratedKeys="true">
+        insert into inventory(product_no, product_name, images, total, created_at, created_by, manager_id, storage_room)
+        values (#{productNo}, #{productName}, #{images}, #{total}, now(), #{createdBy}, #{managerId}, #{storageRoom})
+    </insert>
+        <!--用select进行分页查询-->
+      <select id="getPageSearchByCondition" resultMap="InventoryMap">
+        select *  from inventory where created_at is not null
+          <if test="page.key.productNo != null and page.key.productNo != ''">
+              and  product_no like '%' #{page.key.productNo}  '%'
+          </if>
+          <if test="page.key.productName != null and page.key.productName != ''">
+              and  product_name like '%' #{page.key.productName}  '%'
+          </if>
+            <!--排序 desc是降序-->
+        order by
+        id desc
+        <!--分页查询-->
+      
+        limit  #{page.startNum} , #{page.pageSize}
+    </select>
+     <!--分页查询条数-->
+    <select id="getPageSearchCount" resultType="int">
+        select count(id) as count from inventory    where created_at is not null
+        <if test="page.key.productNo != null and page.key.productNo != ''">
+            and  product_no like '%' #{page.key.productNo}  '%'
+        </if>
+        <if test="page.key.productName != null and page.key.productName != ''">
+            and  product_name like '%' #{page.key.productName}  '%'
+        </if>
+    </select>
+
+   
+
+    <!--通过主键修改数据-->
+    <update id="edit">
+        update inventory
+        <set>
+            <if test="productNo != null and productNo != ''">
+                product_no = #{productNo},
+            </if>
+            <if test="productName != null and productName != ''">
+                product_name = #{productName},
+            </if>
+            <if test="images != null and images != ''">
+                images = #{images},
+            </if>
+            <if test="total != null">
+                total = #{total},
+            </if>
+            <if test="createdAt != null">
+                created_at = #{createdAt},
+            </if>
+            <if test="createdBy != null and createdBy != ''">
+                created_by = #{createdBy},
+            </if>
+            <if test="managerId != null">
+                manager_id = #{managerId},
+            </if>
+            <if test="storageRoom != null and storageRoom != ''">
+                storage_room = #{storageRoom},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from inventory where id = #{id}
+    </delete>
+     <select id="getByProductNo" resultMap="InventoryMap">
+         select * from inventory where product_no=#{productNo};
+     </select>
+      <select id="getByProductName" resultMap="InventoryMap">
+          select * from inventory where product_name=#{productName};
+      </select>
+
+    <select id="getProductList" resultMap="InventoryMap">
+        select * from inventory where created_at is not null;
+    </select>
+
+    <select id="getInventoryAnalyse" resultMap="InventoryMap">
+        select product_name, SUM(total) as num from inventory where created_at is not null
+
+        group by product_name
+    </select>
+</mapper>
+

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.design.warehouseManagementSystem.mapper.StorageMapper">
+
+    <resultMap type="com.design.warehouseManagementSystem.pojo.Storage" id="StorageMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="storageRoom" column="storage_room" jdbcType="VARCHAR"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="createdBy" column="created_by" jdbcType="VARCHAR"/>
+        <result property="managerId" column="manager_id" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="StorageMap">
+        select
+          id, storage_room, created_at, created_by, manager_id
+        from storage
+        where id = #{id}
+    </select>
+
+
+
+    <!--新增所有列-->
+    <insert id="increased" keyProperty="id" useGeneratedKeys="true">
+        insert into storage(storage_room, created_at, created_by, manager_id)
+        values (#{storageRoom},now(), #{createdBy}, #{managerId})
+    </insert>
+        <!--用select进行分页查询-->
+      <select id="getPageSearchByCondition" resultMap="StorageMap">
+
+        select *  from storage
+            <!--排序 desc是降序-->
+        order by
+        id desc
+        <!--分页查询-->
+      
+        limit  #{page.startNum} , #{page.pageSize}
+    </select>
+     <!--分页查询条数-->
+    <select id="getPageSearchCount" resultType="int">
+        select count(id) as count from storage   
+    </select>
+
+   
+
+    <!--通过主键修改数据-->
+    <update id="edit">
+        update storage
+        <set>
+            <if test="storageRoom != null and storageRoom != ''">
+                storage_room = #{storageRoom},
+            </if>
+            <if test="createdAt != null">
+                created_at = #{createdAt},
+            </if>
+            <if test="createdBy != null and createdBy != ''">
+                created_by = #{createdBy},
+            </if>
+            <if test="managerId != null">
+                manager_id = #{managerId},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from storage where id = #{id}
+    </delete>
+     <select id="getStorageList" resultMap="StorageMap">
+         select * from storage where created_at is not null;
+     </select>
+</mapper>
+

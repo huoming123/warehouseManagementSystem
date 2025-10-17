@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.design.warehouseManagementSystem.mapper.WarehousemanMapper">
+
+    <resultMap type="com.design.warehouseManagementSystem.pojo.Warehouseman" id="WarehousemanMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="userNo" column="user_no" jdbcType="VARCHAR"/>
+        <result property="email" column="email" jdbcType="VARCHAR"/>
+        <result property="telephone" column="telephone" jdbcType="VARCHAR"/>
+        <result property="userName" column="user_name" jdbcType="VARCHAR"/>
+        <result property="password" column="password" jdbcType="VARCHAR"/>
+        <result property="address" column="address" jdbcType="VARCHAR"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="images" column="images" jdbcType="VARCHAR"/>
+        <result property="signature" column="signature" jdbcType="VARCHAR"/>
+        <result property="checked" column="checked" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="WarehousemanMap">
+        select
+          id, user_no, email, telephone, user_name, password, address, created_at, images, signature, checked
+        from warehouseman
+        where id = #{id}
+    </select>
+
+
+
+    <!--新增所有列-->
+    <insert id="increased" keyProperty="id" useGeneratedKeys="true">
+        insert into warehouseman(user_no, email, telephone, user_name, password, address, created_at, images, signature, checked)
+        values (#{userNo}, #{email}, #{telephone}, #{userName}, #{password}, #{address}, now(), #{images}, #{signature}, 0)
+    </insert>
+        <!--用select进行分页查询-->
+      <select id="getPageSearchByCondition" resultMap="WarehousemanMap">
+        select *  from warehouseman where created_at is not null
+          <if test="page.key.userName != null and page.key.userName != ''">
+              and  user_name like '%' #{page.key.userName}  '%'
+          </if>
+          <if test="page.key.userNo != null and page.key.userNo != ''">
+              and  user_no like '%' #{page.key.userNo}  '%'
+          </if>
+            <!--排序 desc是降序-->
+        order by
+        id desc
+        <!--分页查询-->
+      
+        limit  #{page.startNum} , #{page.pageSize}
+    </select>
+     <!--分页查询条数-->
+    <select id="getPageSearchCount" resultType="int">
+        select count(id) as count from warehouseman where created_at is not null
+        <if test="page.key.userName != null and page.key.userName != ''">
+            and  user_name like '%' #{page.key.userName}  '%'
+        </if>
+        <if test="page.key.userNo != null and page.key.userNo != ''">
+            and  user_no like '%' #{page.key.userNo}  '%'
+        </if>
+    </select>
+
+   
+
+    <!--通过主键修改数据-->
+    <update id="edit">
+        update warehouseman
+        <set>
+            <if test="userNo != null and userNo != ''">
+                user_no = #{userNo},
+            </if>
+            <if test="email != null and email != ''">
+                email = #{email},
+            </if>
+            <if test="telephone != null and telephone != ''">
+                telephone = #{telephone},
+            </if>
+            <if test="userName != null and userName != ''">
+                user_name = #{userName},
+            </if>
+            <if test="password != null and password != ''">
+                password = #{password},
+            </if>
+            <if test="address != null and address != ''">
+                address = #{address},
+            </if>
+            <if test="createdAt != null">
+                created_at = #{createdAt},
+            </if>
+            <if test="images != null and images != ''">
+                images = #{images},
+            </if>
+            <if test="signature != null and signature != ''">
+                signature = #{signature},
+            </if>
+            <if test="checked != null">
+                checked = #{checked},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from warehouseman where id = #{id}
+    </delete>
+    <select id="getByUserNo" resultMap="WarehousemanMap">
+        select * from warehouseman where user_no=#{userNo};
+    </select>
+</mapper>
+
